@@ -7,6 +7,7 @@
             <div class="dates">
                 <v-date-picker multiple v-model="dates"></v-date-picker>
                 <div v-for="date in dates" :key="date">
+                    <!-- i'd change this binging because it's not very good mutate props -->
                     <dateShift :shift="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')]" />
                 </div>
             </div>

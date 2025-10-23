@@ -1,12 +1,12 @@
 <template>
   <div class="container">
+    <!-- here shoud be filter by price -->
     <div class="actions">
       <v-btn @click = 'setNewShift'>add shift</v-btn>
     </div>
     <div class="shifts-list">
       <shiftsList />
     </div>
-    <!-- <shiftsTable :list="shiftsList" @editShift="editShift" @deleteShift="deleteShift"/> -->
     <v-dialog v-model="shiftsStore.shiftDialogIsOpen" transition="slide-x-reverse-transition" content-class="dialog-right" max-width="600" @afterLeave="clearShift">
       <v-card class="shift-card">
         <v-card-title>
