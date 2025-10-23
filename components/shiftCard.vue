@@ -2,6 +2,7 @@
     <v-card class="shiftWrapper">
         <v-card-title class="text-h5 mb-3" length="5">{{ shiftFields.type === 'new' ? 'Create' : 'Edit' }}</v-card-title>
         <form @submit.prevent="saveShift">
+            <!-- limitation on the inputs length weren't added due to time limits-->
             <v-text-field v-model="shiftFields.title" label="Title" length="5" placeholder="Enter title"></v-text-field>
             <v-textarea v-model="shiftFields.description" label="Description" placeholder="Enter description"></v-textarea>
             <div class="dates">
@@ -58,7 +59,6 @@ const shiftFields = ref({
 
 
 function saveShift() {
-    console.log(shiftFields.value);
     if(shiftFields.value.type === 'new') {
         shiftsStore.addShift({...shiftFields.value, id: new Date().getTime()});
     } else {
@@ -75,7 +75,7 @@ function deleteShift() {
     clearFields();
 }
 const disableSave = computed(() => {
-    // here i'd add some validation for the shift fields
+    // here i'd like toadd some validation for the shift fields
     return !shiftFields.value.title
 })
 function clearFields() {

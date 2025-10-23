@@ -4,6 +4,7 @@
             <v-card-title class="d-flex justify-space-between align-center pa-2">{{ dayjs(date).format('DD-MM-YYYY') }}
                 <v-icon @click="deleteDateShift" class="cursor-pointer">mdi-close</v-icon></v-card-title>
             <v-card-item>
+                <!-- i still need to add validation on the time fields, exlude already chosen times -->
                 <v-text-field :model-value="dateShift.startTime" label="Start Time" prepend-icon="mdi-clock-time-four-outline"
                     readonly>
                     <v-menu v-model="showStartTimeMenu" :close-on-content-click="false" activator="parent" min-width="0">
