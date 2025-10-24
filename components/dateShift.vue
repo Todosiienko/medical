@@ -1,7 +1,7 @@
 <template>
     <div class="date-shift">
         <v-card>
-            <v-card-title class="d-flex justify-space-between align-center pa-2">{{ dayjs(date).format('DD-MM-YYYY') }}
+            <v-card-title class="d-flex justify-space-between align-center pa-2">{{ dayjs(shift.date).format('DD-MM-YYYY') }}
                 <v-icon @click="deleteDateShift" class="cursor-pointer">mdi-close</v-icon></v-card-title>
             <v-card-item>
                 <!-- i still need to add validation on the time fields, exlude already chosen times -->
@@ -43,7 +43,7 @@ const dateShift = ref({
 })
 
 function deleteDateShift(){
-    emits('deleteDateShift', props.date)
+    emits('deleteDateShift', props.shift)
 }
 onMounted(() => {
     dateShift.value = props.shift;

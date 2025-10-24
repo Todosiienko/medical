@@ -9,7 +9,7 @@
                 <v-date-picker multiple v-model="dates"></v-date-picker>
                 <div v-for="date in dates" :key="date">
                     <!-- i'd change this binging because it's not very good mutate props -->
-                    <dateShift :shift="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')]" />
+                    <dateShift :shift="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')]" @deleteDateShift="deleteDateShift"/>
                 </div>
             </div>
             <v-card-actions class="d-flex justify-end">
@@ -50,13 +50,18 @@ watch(dates, (newVal) => {
     });
 })
 
-
 const shiftFields = ref({
     title: "",
     shiftDescription: "",
     dates: [],
 })
 
+
+function deleteDateShift(date) {
+    console.log(date);
+    delete shiftFields.value.dates[dayjs(date.date).format('YYYY-MM-DD')];
+    dates.value = dates.value.filter(d => d !== date.date);
+}
 
 function saveShift() {
     if(shiftFields.value.type === 'new') {
