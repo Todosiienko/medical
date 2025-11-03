@@ -47,7 +47,7 @@ export const useShiftsStore = defineStore('shifts', {
     addShift(shift) {
       this.shifts.push(shift);
     },
-    edditShift(shift) {
+    editShift(shift) {
       this.shifts = this.shifts.map(item => item.id === shift.id ? shift : item);
     },
     deleteShift(shiftId) {

@@ -98,7 +98,7 @@ function saveShift() {
         delete shiftFields.value.type;
         shiftsStore.addShift({...shiftFields.value, id: new Date().getTime()});
     } else {
-        shiftsStore.edditShift(shiftFields.value);
+        shiftsStore.editShift(shiftFields.value);
     }
     emit('closeShiftDialog');
     clearFields();
