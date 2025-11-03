@@ -6,7 +6,8 @@
             <v-text-field v-model.trim="shiftFields.title" label="Title" length="5" placeholder="Enter title" clearable :rules="[rules.titleValidation]"></v-text-field>
             <v-textarea v-model.trim="shiftFields.description" label="Description" placeholder="Enter description" clearable :rules="[rules.descriptionValidation]"></v-textarea>
             <div class="dates">
-                <v-date-picker multiple v-model="dates"></v-date-picker>
+                <v-date-picker multiple v-model="dates" title="Select 1-10 dates"></v-date-picker>
+                <div v-if="dateSelectionNotification" class="text-error mt-2">{{ dateSelectionNotification }}</div>
                 <div v-for="date in dates" :key="date">
                     <!-- i'd change this binging because it's not very good mutate props -->
                     <dateShift :shift="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')]" @deleteDateShift="deleteDateShift"/>
@@ -41,10 +42,26 @@ const rules = {
     },
 }
 const dates = ref([]);
+const dateSelectionNotification = shallowRef('');
 
 const emit = defineEmits(['save']);
 
-watch(dates, (newVal) => {
+watch(dates, (newVal, oldVal) => {
+    dateSelectionNotification.value = '';
+    
+    if (newVal.length === 0) {
+        dateSelectionNotification.value = 'Please select at least 1 date';
+        return;
+    }
+    if(newVal.length===10){
+        dateSelectionNotification.value = 'Maximum of 10 dates allowed';
+    }
+    if (newVal.length > 10) {
+        dates.value = newVal.slice(0, 10);
+        return;
+    }
+    
+    // Create date entries for shiftFields (only if validation passed)
     newVal.forEach(date => {
         const formatedDate = dayjs(date).format('YYYY-MM-DD');
         if(!shiftFields.value.dates[formatedDate]) {
@@ -69,9 +86,9 @@ const shiftFields = ref({
 
 
 function deleteDateShift(date) {
-    console.log(date);
     delete shiftFields.value.dates[dayjs(date.date).format('YYYY-MM-DD')];
     dates.value = dates.value.filter(d => d !== date.date);
+    dateSelectionNotification.value = ''; // Clear error on successful deletion
 }
 
 function saveShift() {
@@ -94,7 +111,8 @@ const disableSave = computed(() => {
     // here i'd like toadd some validation for the shift fields
     const titleIsValid = typeof(rules.titleValidation(shiftFields.value.title)) === 'boolean' && rules.titleValidation(shiftFields.value.title);
     const descriptionIsValid = typeof(rules.descriptionValidation(shiftFields.value.shiftDescription)) === 'boolean' && rules.descriptionValidation(shiftFields.value.shiftDescription);
-    return !titleIsValid || !descriptionIsValid
+    const datesAreValid = dates.value.length >= 1 && dates.value.length <= 10;
+    return !titleIsValid || !descriptionIsValid || !datesAreValid;
 })
 function clearFields() {
     shiftFields.value = {
