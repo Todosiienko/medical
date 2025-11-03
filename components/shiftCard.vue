@@ -70,8 +70,8 @@ watch(dates, (newVal, oldVal) => {
                 date: date,
                 startTime: "",
                 endTime: "",
-                price: "",
-                type: "",
+                price: "0",
+                type: "other",
                 currency: "EUR",
             };
         }

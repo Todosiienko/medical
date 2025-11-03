@@ -8,13 +8,13 @@
                 <v-text-field :model-value="dateShift.startTime" label="Start Time" prepend-icon="mdi-clock-time-four-outline"
                     readonly>
                     <v-menu v-model="showStartTimeMenu" :close-on-content-click="false" activator="parent" min-width="0">
-                        <v-time-picker v-model="dateShift.startTime" format="24hr"></v-time-picker>
+                        <v-time-picker v-model="dateShift.startTime" :max="dateShift.endTime" format="24hr"></v-time-picker>
                     </v-menu>
                 </v-text-field>
                 <v-text-field :model-value="dateShift.endTime" label="End Time" prepend-icon="mdi-clock-time-four-outline"
                     readonly>
                     <v-menu v-model="showEndTimeMenu" :close-on-content-click="false" activator="parent" min-width="0">
-                        <v-time-picker v-model="dateShift.endTime" format="24hr"></v-time-picker>
+                        <v-time-picker v-model="dateShift.endTime" :min="dateShift.startTime" format="24hr"></v-time-picker>
                     </v-menu>
                 </v-text-field>
                 <v-text-field v-model="dateShift.price" label="Price"></v-text-field>
@@ -37,7 +37,7 @@ const shiftTypes = [{title: "Consultation", value: "consultation"}, {title: "Amb
 const dateShift = ref({
     startTime: "",
     endTime: "",
-    price: "",
+    price: "0",
     type: "",
     currency: "EUR",
 })
