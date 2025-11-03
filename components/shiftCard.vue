@@ -3,8 +3,8 @@
         <v-card-title class="text-h5 mb-3" length="5">{{ shiftFields.type === 'new' ? 'Create' : 'Edit' }}</v-card-title>
         <form @submit.prevent="saveShift">
             <!-- limitation on the inputs length weren't added due to time limits-->
-            <v-text-field v-model="shiftFields.title" label="Title" length="5" placeholder="Enter title"></v-text-field>
-            <v-textarea v-model="shiftFields.description" label="Description" placeholder="Enter description"></v-textarea>
+            <v-text-field v-model.trim="shiftFields.title" label="Title" length="5" placeholder="Enter title" clearable :rules="[rules.titleValidation]"></v-text-field>
+            <v-textarea v-model.trim="shiftFields.description" label="Description" placeholder="Enter description" clearable :rules="[rules.descriptionValidation]"></v-textarea>
             <div class="dates">
                 <v-date-picker multiple v-model="dates"></v-date-picker>
                 <div v-for="date in dates" :key="date">
@@ -29,6 +29,17 @@ const props = defineProps({
     doctorsList: Array,
 })
 
+const rules = {
+    titleValidation: value => {
+        if (value && value.length <= 100) return true;
+        if(value && value.length > 100) return 'Title must be less than 100 characters';
+        return 'You must enter a title';
+    },
+    descriptionValidation: value => {
+        if (!value || (value?.length <= 500)) return true;
+        if(value?.length > 500) return 'Description must be less than 500 characters';
+    },
+}
 const dates = ref([]);
 
 const emit = defineEmits(['save']);
@@ -52,7 +63,7 @@ watch(dates, (newVal) => {
 
 const shiftFields = ref({
     title: "",
-    shiftDescription: "",
+    description: "",
     dates: [],
 })
 
@@ -81,7 +92,9 @@ function deleteShift() {
 }
 const disableSave = computed(() => {
     // here i'd like toadd some validation for the shift fields
-    return !shiftFields.value.title
+    const titleIsValid = typeof(rules.titleValidation(shiftFields.value.title)) === 'boolean' && rules.titleValidation(shiftFields.value.title);
+    const descriptionIsValid = typeof(rules.descriptionValidation(shiftFields.value.shiftDescription)) === 'boolean' && rules.descriptionValidation(shiftFields.value.shiftDescription);
+    return !titleIsValid || !descriptionIsValid
 })
 function clearFields() {
     shiftFields.value = {
