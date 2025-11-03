@@ -42,9 +42,13 @@ const priceRange = ref([shiftsStore.priceOptions.min, shiftsStore.priceOptions.m
 const newShiftData = {
   title: "",
   description: "",
-  dates: [],
+  dates: {},
   type: "new",
 }
+
+watch(() => shiftsStore.priceOptions, (newVal, oldVal) => {
+  priceRange.value = [newVal.min, newVal.max];
+});
 
 function setNewShift() {
   shiftsStore.shiftDialogIsOpen = true;

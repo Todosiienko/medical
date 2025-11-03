@@ -1,16 +1,21 @@
 <template>
     <v-card class="shiftWrapper">
-        <v-card-title class="text-h5 mb-3" length="5">{{ shiftFields.type === 'new' ? 'Create' : 'Edit' }}</v-card-title>
+        <v-card-title class="text-h5 mb-3" length="5">{{ shiftFields.type === 'new' ? 'Create' : 'Edit'
+            }}</v-card-title>
         <form @submit.prevent="saveShift">
-            <!-- limitation on the inputs length weren't added due to time limits-->
-            <v-text-field v-model.trim="shiftFields.title" label="Title" length="5" placeholder="Enter title" clearable :rules="[rules.titleValidation]"></v-text-field>
-            <v-textarea v-model.trim="shiftFields.description" label="Description" placeholder="Enter description" clearable :rules="[rules.descriptionValidation]"></v-textarea>
+            <v-text-field v-model.trim="shiftFields.title" label="Title" length="5" placeholder="Enter title" clearable
+                :rules="[rules.titleValidation]"></v-text-field>
+            <v-textarea v-model.trim="shiftFields.description" label="Description" placeholder="Enter description"
+                clearable :rules="[rules.descriptionValidation]"></v-textarea>
             <div class="dates">
                 <v-date-picker multiple v-model="dates" title="Select 1-10 dates"></v-date-picker>
                 <div v-if="dateSelectionNotification" class="text-error mt-2">{{ dateSelectionNotification }}</div>
                 <div v-for="date in dates" :key="date">
-                    <!-- i'd change this binging because it's not very good mutate props -->
-                    <dateShift :shift="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')]" @deleteDateShift="deleteDateShift"/>
+                    <dateShift :date="date" v-model:startTime="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')].startTime"
+                        v-model:endTime="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')].endTime"
+                        v-model:price="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')].price"
+                        v-model:type="shiftFields.dates[dayjs(date).format('YYYY-MM-DD')].type"
+                        @deleteDateShift="deleteDateShift(date)" />
                 </div>
             </div>
             <v-card-actions class="d-flex justify-end">
@@ -24,10 +29,9 @@
 import dayjs from 'dayjs'
 import { useShiftsStore } from '@/stores'
 const shiftsStore = useShiftsStore()
-
+const emit = defineEmits(['closeShiftDialog', 'save']);
 const props = defineProps({
     shift: Object,
-    doctorsList: Array,
 })
 
 const rules = {
@@ -44,7 +48,6 @@ const rules = {
 const dates = ref([]);
 const dateSelectionNotification = shallowRef('');
 
-const emit = defineEmits(['save']);
 
 watch(dates, (newVal, oldVal) => {
     dateSelectionNotification.value = '';
@@ -61,13 +64,12 @@ watch(dates, (newVal, oldVal) => {
         return;
     }
     
-    // Create date entries for shiftFields (only if validation passed)
     newVal.forEach(date => {
         const formatedDate = dayjs(date).format('YYYY-MM-DD');
         if(!shiftFields.value.dates[formatedDate]) {
             shiftFields.value.dates[formatedDate] = {
-                id: new Date().getTime(),
-                date: date,
+                id: formatedDate,
+                date: formatedDate,
                 startTime: "",
                 endTime: "",
                 price: "0",
@@ -81,23 +83,23 @@ watch(dates, (newVal, oldVal) => {
 const shiftFields = ref({
     title: "",
     description: "",
-    dates: [],
+    dates: {},
 })
 
 
 function deleteDateShift(date) {
-    delete shiftFields.value.dates[dayjs(date.date).format('YYYY-MM-DD')];
-    dates.value = dates.value.filter(d => d !== date.date);
-    dateSelectionNotification.value = ''; // Clear error on successful deletion
+    delete shiftFields.value.dates[dayjs(date).format('YYYY-MM-DD')];
+    dates.value = dates.value.filter(d => d !== date);
+    dateSelectionNotification.value = '';
 }
 
 function saveShift() {
     if(shiftFields.value.type === 'new') {
+        delete shiftFields.value.type;
         shiftsStore.addShift({...shiftFields.value, id: new Date().getTime()});
     } else {
-        shiftsStore.edditShift(shiftFields.value.id);
+        shiftsStore.edditShift(shiftFields.value);
     }
-    shiftsStore.edditShift(shiftFields.value);
     emit('closeShiftDialog');
     clearFields();
 }
@@ -108,16 +110,15 @@ function deleteShift() {
     clearFields();
 }
 const disableSave = computed(() => {
-    // here i'd like toadd some validation for the shift fields
     const titleIsValid = typeof(rules.titleValidation(shiftFields.value.title)) === 'boolean' && rules.titleValidation(shiftFields.value.title);
-    const descriptionIsValid = typeof(rules.descriptionValidation(shiftFields.value.shiftDescription)) === 'boolean' && rules.descriptionValidation(shiftFields.value.shiftDescription);
+    const descriptionIsValid = typeof(rules.descriptionValidation(shiftFields.value.description)) === 'boolean' && rules.descriptionValidation(shiftFields.value.description);
     const datesAreValid = dates.value.length >= 1 && dates.value.length <= 10;
     return !titleIsValid || !descriptionIsValid || !datesAreValid;
 })
 function clearFields() {
     shiftFields.value = {
         description: "",
-        dates: [],
+        dates: {},
         title: "",
     }
 }
@@ -126,8 +127,11 @@ function clearFields() {
 
 onMounted(() => {
     shiftFields.value = JSON.parse(JSON.stringify(shiftsStore.activeShift));
-    if(shiftFields.value.dates) {
-        dates.value = Object.values(shiftFields.value.dates || {}).map(date => date.date);
+    if(!shiftFields.value.dates) {
+        shiftFields.value.dates = {};
+    }
+    if(shiftFields.value.dates && Object.keys(shiftFields.value.dates).length > 0) {
+        dates.value = Object.values(shiftFields.value.dates).map(date => date.date);
     }
 })
 </script>
