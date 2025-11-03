@@ -57,4 +57,18 @@ export const useShiftsStore = defineStore('shifts', {
       this.activeShift = {};
     },
   },
+  getters: {
+    priceOptions: (state) => {
+      const prices = [];
+      state.shifts.forEach(shift => {
+        Object.values(shift.dates).forEach(date => {
+          prices.push(date.price);
+        });
+      });
+      return {
+        min: Math.min(...prices),
+        max: Math.max(...prices),
+      };
+    },
+  }
 });

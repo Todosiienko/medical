@@ -8,10 +8,6 @@
 import { useShiftsStore } from '@/stores'
 const shiftsStore = useShiftsStore()
 
-const list = computed(() => {
-  return shiftsStore.shifts
-})
-
 const props = defineProps({
   list:Array,
   default: ()=>[]

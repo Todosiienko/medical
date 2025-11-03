@@ -1,21 +1,32 @@
 <template>
   <div class="container">
-    <!-- here shoud be filter by price -->
-    <div class="actions">
-      <v-btn @click = 'setNewShift'>add shift</v-btn>
+    <div class="filter w-100">
+      <h3>Filter</h3>
+        <v-range-slider thumb-label="always" v-model="priceRange" :min="shiftsStore.priceOptions.min" :max="shiftsStore.priceOptions.max" step="1" label="Filter on price" class="w-100">
+          <template v-slot:prepend>
+            {{ shiftsStore.priceOptions.min }}
+        </template>
+        <template v-slot:append>
+          {{ shiftsStore.priceOptions.max }}
+        </template>
+      </v-range-slider>
+    </div>
+    <div class="actions d-flex justify-space-between align-center w-100">
+      <h3>Shifts</h3> <v-btn @click='setNewShift'>add shift</v-btn>
     </div>
     <div class="shifts-list">
-      <shiftsList />
+      <shiftsList :list="filteredShifts" />
     </div>
-    <v-dialog v-model="shiftsStore.shiftDialogIsOpen" transition="slide-x-reverse-transition" content-class="dialog-right" max-width="600" @afterLeave="clearShift">
+    <v-dialog v-model="shiftsStore.shiftDialogIsOpen" transition="slide-x-reverse-transition"
+      content-class="dialog-right" max-width="600" @afterLeave="clearShift">
       <v-card class="shift-card">
         <v-card-title>
-          <div class="d-flex justify-end">        
+          <div class="d-flex justify-end">
             <v-icon @click="shiftsStore.shiftDialogIsOpen = false">mdi-close</v-icon>
           </div>
         </v-card-title>
         <v-card-item>
-          <shiftCard @closeShiftDialog="shiftsStore.shiftDialogIsOpen = false"/>
+          <shiftCard @closeShiftDialog="shiftsStore.shiftDialogIsOpen = false" />
         </v-card-item>
       </v-card>
     </v-dialog>
@@ -26,66 +37,58 @@
 import { useShiftsStore } from '@/stores'
 const shiftsStore = useShiftsStore()
 
-
-const dateObject = {
-  startTime:"",
-  endTime:"",
-  date:"",
-  price:"",
-  type:"",
-}
+const priceRange = ref([shiftsStore.priceOptions.min, shiftsStore.priceOptions.max]);
 
 const newShiftData = {
-  title:"",
-  description:"",
-  dates:[],
-  type:"new",
+  title: "",
+  description: "",
+  dates: [],
+  type: "new",
 }
 
-function setNewShift(){
+function setNewShift() {
   shiftsStore.shiftDialogIsOpen = true;
   shiftsStore.setActiveShift(newShiftData);
 }
 
-function editShift(shiftitem){
-  shift.value = {type:'existing', info:shiftitem};
-  shiftIsOpen.value = true;
-}
-
-function saveShift(shift){
-  if(shift.type === 'existing'){
-    shiftsList.value = shiftsList.value.map(item => item.id === shift.info.id ? shift.info : item)
-  } else {
-    shiftsList.value.push(shift.info);
-  }
-  shiftIsOpen.value = false;
-}
-
-function deleteShift(shift){
-  shiftsList.value = shiftsList.value.filter(item => item.id !== shift.id);
-}
-
-function clearShift(){
+function clearShift() {
   shiftsStore.clearActiveShift();
 }
+
+const filteredShifts = computed(() => {
+  const filteredShifts = [];
+
+  shiftsStore.shifts.forEach(shift => {
+    if(Object.values(shift.dates).some(date => {
+      return +date.price >= +priceRange.value[0] && +date.price <= +priceRange.value[1];
+    })){
+      const filteredDates = Object.values(shift.dates).filter(date => {
+        return +date.price >= +priceRange.value[0] && +date.price <= +priceRange.value[1];
+      });
+      const datesWithKeys = Object.fromEntries(filteredDates.map(date => [date.id, date]));
+      filteredShifts.push({...shift, dates:datesWithKeys });
+    }
+  });
+  return filteredShifts;
+});
 
 </script>
 <style scoped lang="scss">
 
 .container {
+  padding-top: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  .actions {
-    // margin-bottom: 20px;
-  }
+
   .shifts-list {
     width: 100%;
+    min-width: 500px;
     height: 60vh;
     max-width: 1000px;
     padding: 20px;
-    margin:15px;
+    margin: 15px;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     overflow-y: auto;
   }
