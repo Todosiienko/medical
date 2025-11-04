@@ -64,7 +64,10 @@ const allowedTime = computed(()=>{
   const unitTime = Object.fromEntries(hourRange.map((h)=>[h,minutesRange]));
 
 
-  if (!props.date) return unitTime;
+  if (!props.date || shiftsStore.activeShift.type === 'edit') {
+    // current implementation still need to be done for edit mode so i don't restrict hours and minutes for timepicker
+    return unitTime;
+  }
   const passedDate = dayjs(props.date).format('YYYY-MM-DD');
   if(passedDate in shiftsStore.getBookedTime){
     const bookedTime = shiftsStore.getBookedTime[passedDate];
