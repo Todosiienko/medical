@@ -27,7 +27,6 @@
 </template>
 <script setup>
 import dayjs from 'dayjs'
-import { useShiftsStore } from '@/stores'
 const shiftsStore = useShiftsStore()
 const emit = defineEmits(['closeShiftDialog', 'save']);
 const props = defineProps({
@@ -73,7 +72,7 @@ watch(dates, (newVal, oldVal) => {
                 startTime: "",
                 endTime: "",
                 price: "0",
-                type: "other",
+                type: "telephone",
                 currency: "EUR",
             };
         }

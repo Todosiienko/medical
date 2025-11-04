@@ -31,7 +31,7 @@ const emits = defineEmits(['deleteDateShift'])
 const showStartTimeMenu = ref(false)
 const showEndTimeMenu = ref(false)
 
-const shiftTypes = [{title: "Consultation", value: "consultation"}, {title: "Ambulance", value: "ambulance"}, {title: "Other", value: "other"}]
+const shiftTypes = [{title: "Consultation", value: "consultation"}, {title: "Ambulance", value: "ambulance"}, {title: "Telephone", value: "telephone"}]
 
 const startTime = defineModel('startTime');
 const endTime = defineModel('endTime');

@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="js">
-import { useShiftsStore } from '@/stores'
 const shiftsStore = useShiftsStore()
 
 const priceRange = ref([shiftsStore.priceOptions.min, shiftsStore.priceOptions.max]);

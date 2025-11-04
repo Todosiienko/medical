@@ -5,7 +5,6 @@
 </template>
 <script setup>
 
-import { useShiftsStore } from '@/stores'
 const shiftsStore = useShiftsStore()
 
 const props = defineProps({
