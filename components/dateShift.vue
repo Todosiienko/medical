@@ -22,7 +22,6 @@
                 <v-text-field v-model="price" label="Price"></v-text-field>
                 <v-select v-model="type" label="Type" :items="shiftTypes"></v-select>
             </v-card-item>
-          {{shiftsStore.getBookedTime}}
         </v-card>
     </div>
 </template>
@@ -49,25 +48,57 @@ function deleteDateShift(){
     emits('deleteDateShift')
 }
 
-const minutesRange = [];
-for(let min = 0; min<=59; min++){
-  let formatedMinute = min < 10 ? "0"+min : min.toString()
-  minutesRange.push(formatedMinute);
-}
-let hourRange = [];
-for(let h = 0; h<=24; h++){
-  let formatedHour = h < 10 ? "0"+h : h.toString()
-  hourRange.push(formatedHour);
-}
-const unitTime = Object.fromEntries(hourRange.map((h)=>[h,minutesRange]));
-const test = ref([]);
+
 const allowedTime = computed(()=>{
+
+  const minutesRange = [];
+  for(let min = 0; min<=59; min++){
+    let formatedMinute = min < 10 ? "0"+min : min.toString()
+    minutesRange.push(formatedMinute);
+  }
+  let hourRange = [];
+  for(let h = 0; h<=24; h++){
+    let formatedHour = h < 10 ? "0"+h : h.toString()
+    hourRange.push(formatedHour);
+  }
+  const unitTime = Object.fromEntries(hourRange.map((h)=>[h,minutesRange]));
+
+
+  if (!props.date) return unitTime;
   const passedDate = dayjs(props.date).format('YYYY-MM-DD');
-  console.log(passedDate);
   if(passedDate in shiftsStore.getBookedTime){
-    console.log('we get time');
-    return test.value;
-  } else return unitTime;
+    const bookedTime = shiftsStore.getBookedTime[passedDate];
+    bookedTime.forEach((i)=>{
+      const [startHour, startMinute] = i.startTime.split(":");
+      const [endHour, endMinute] = i.endTime.split(":");
+      if(+startHour === +endHour){
+        unitTime[startHour] = unitTime[startHour].filter((m)=> +m < +startMinute || +m > +endMinute);
+      } else if(+startHour < +endHour && startMinute === '00' && endMinute === '00'){
+        let hour = +startHour;
+        for(hour; hour <= +endHour;hour++){
+          delete unitTime[hour]
+        }
+      } else if(+startHour < +endHour && startMinute === '00' && endMinute !== '00'){
+        let hour = +startHour;
+        for(hour; hour < +endHour;hour++){
+          delete unitTime[hour]
+        }
+        unitTime[endHour] = unitTime[endHour].filter((m)=> +m > +endMinute);
+      } else if(+startHour < +endHour && startMinute !== '00' && endMinute !== '00'){
+        let hour = +startHour;
+        if(+endHour - +startHour >=2){
+          for(hour +1; hour < +endHour;hour++){
+            delete unitTime[hour]
+          }
+        } else {
+          unitTime[startHour] = unitTime[startHour].filter((m)=> +m < +startMinute);
+          unitTime[endHour] = unitTime[endHour].filter((m)=> +m > +endMinute);
+        }
+
+      }
+    })
+  }
+  return unitTime
 })
 const allowedHours = computed(()=>Object.keys(allowedTime.value).map((h)=>+h))
 const allowedStartTimeMinutes = computed(()=>{

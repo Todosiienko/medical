@@ -12,7 +12,7 @@ export const useShiftsStore = defineStore('shifts', {
         id:"2025-11-06",
         date: "2025-11-06",
         startTime: "10:00",
-        endTime: "11:00",
+        endTime: "10:30",
         price: 100,
         type: "consultation",
         currency: "EUR",

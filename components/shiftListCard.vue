@@ -26,7 +26,7 @@
                   <td>{{ dayjs(date.date).format('DD MMM YYYY') }}</td>
                   <td>{{ date.startTime }}</td>
                   <td>{{ date.endTime }}</td>
-                  <td>{{ types[date.type] }}</td>
+                  <td>{{ types[date.type] || 'Other' }}</td>
                   <td>{{ currencies[date.currency]}} {{ date.price }}</td>
                 </tr>
               </tbody>
@@ -47,7 +47,7 @@ const props = defineProps({
 const types = {
   "consultation": "Consultation",
   "ambulance": "Ambulance",
-  "other": "Other",
+  "telephone": "Telephone",
 }
 
 const dates = computed(() => {
