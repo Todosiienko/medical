@@ -23,7 +23,7 @@
               </thead>
               <tbody>
                 <tr v-for="date in dates" :key="date.id">
-                  <td>{{ dayjs(date.date).format('YYYY-MM-DD') }}</td>
+                  <td>{{ dayjs(date.date).format('DD MMM YYYY') }}</td>
                   <td>{{ date.startTime }}</td>
                   <td>{{ date.endTime }}</td>
                   <td>{{ types[date.type] }}</td>
