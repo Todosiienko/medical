@@ -33,7 +33,10 @@
   </div>
 </template>
 
+<!-- Why are we not using lang="ts"? Could you explain me the advantages of using ts? -->
 <script setup lang="js">
+// Is this instance of the store reactive?
+// Could we deconstruct the store here to use directly the shifts? Are going the shifts to be reactive?
 const shiftsStore = useShiftsStore()
 
 const priceRange = ref([shiftsStore.priceOptions.min, shiftsStore.priceOptions.max]);
@@ -50,6 +53,7 @@ watch(() => shiftsStore.priceOptions, (newVal, oldVal) => {
 });
 
 function setNewShift() {
+  // Why the dialog state is handled by the store?
   shiftsStore.shiftDialogIsOpen = true;
   shiftsStore.setActiveShift(newShiftData);
 }
@@ -58,24 +62,32 @@ function clearShift() {
   shiftsStore.clearActiveShift();
 }
 
+// Is this code doing the same as the previous one? Could you explain me the advantages of using this one?
+// Why are we using computed here?
+// What is the difference between computed and ref?
 const filteredShifts = computed(() => {
-  const filteredShifts = [];
+  const [min, max] = priceRange.value;
 
-  shiftsStore.shifts.forEach(shift => {
-    if(Object.values(shift.dates).some(date => {
-      return +date.price >= +priceRange.value[0] && +date.price <= +priceRange.value[1];
-    })){
-      const filteredDates = Object.values(shift.dates).filter(date => {
-        return +date.price >= +priceRange.value[0] && +date.price <= +priceRange.value[1];
+  return shiftsStore.shifts.reduce((acc, shift) => {
+    const validDates = Object.values(shift.dates).filter(({ price }) => {
+      const p = Number(price);
+      return p >= min && p <= max;
+    });
+
+    if (validDates.length > 0) {
+      acc.push({
+        ...shift,
+        dates: Object.fromEntries(validDates.map(d => [d.id, d])),
       });
-      const datesWithKeys = Object.fromEntries(filteredDates.map(date => [date.id, date]));
-      filteredShifts.push({...shift, dates:datesWithKeys });
     }
-  });
-  return filteredShifts;
+
+    return acc;
+  }, []);
 });
 
 </script>
+
+<!-- Why are we using scoped styles here? -->
 <style scoped lang="scss">
 
 .container {
@@ -97,6 +109,7 @@ const filteredShifts = computed(() => {
   }
 }
 
+// Why are we using deep selector here?
 :deep(.dialog-right) {
   position: fixed;
   right: 0;

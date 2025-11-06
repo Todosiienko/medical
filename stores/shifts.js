@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
+import groupBy from 'lodash/groupBy';
 
+// Why are we using options API here? Could it be better to use the composition API structure?
 export const useShiftsStore = defineStore('shifts', {
   state: () => ({
     activeShift: {},
@@ -49,6 +51,7 @@ export const useShiftsStore = defineStore('shifts', {
     },
     editShift(shift) {
       this.shifts = this.shifts.map(item => item.id === shift.id ? shift : item);
+
     },
     deleteShift(shiftId) {
       this.shifts = this.shifts.filter(item => item.id !== shiftId);
@@ -59,6 +62,7 @@ export const useShiftsStore = defineStore('shifts', {
   },
   getters: {
     priceOptions: (state) => {
+      // could we improve this having a min Heap and a max Heap? How could be the idea of the implementation?
       const prices = [];
       state.shifts.forEach(shift => {
         Object.values(shift.dates).forEach(date => {
@@ -71,30 +75,18 @@ export const useShiftsStore = defineStore('shifts', {
       };
     },
     getBookedTime:(state)=>{
-      const uniqDates = new Set();
-      let allDateShifts = [];
-      state.shifts.forEach(shift => {
-        Object.keys(shift.dates).forEach(key => {
-          uniqDates.add(key);
-        });
-        const modifiedDates = Object.values(shift.dates).map((i)=>{
-          return {
-            id:i.id,
-            date:i.date,
-            startTime:i.startTime,
-            endTime:i.endTime,
-            type:i.type
-          }
-        })
-        allDateShifts = [...allDateShifts, ...modifiedDates];
-      });
+      // Is this code doing the same as the previous one? Could you explain it to me?
+      const allDateShifts = state.shifts.flatMap(shift =>
+        Object.values(shift.dates).map(({ id, date, startTime, endTime, type }) => ({
+          id,
+          date,
+          startTime,
+          endTime,
+          type,
+        }))
+      );
 
-      const separateShifts = Object.fromEntries([...uniqDates].map((i)=>{
-        const key = i;
-        const filteredShifts = allDateShifts.filter((shift)=>shift.date === key);
-        return [key, filteredShifts]
-      }))
-      return separateShifts;
+      return groupBy(allDateShifts, 'date');
     }
   }
 });

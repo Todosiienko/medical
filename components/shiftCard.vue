@@ -58,6 +58,9 @@ watch(dates, (newVal, oldVal) => {
     if(newVal.length===10){
         dateSelectionNotification.value = 'Maximum of 10 dates allowed';
     }
+
+    // Do we need this check?
+    // Could we do it in a different place?
     if (newVal.length > 10) {
         dates.value = newVal.slice(0, 10);
         return;
@@ -103,6 +106,9 @@ function saveShift() {
     clearFields();
 }
 
+// Is good for any component to be able to use store actions and mutations?
+// Could exist the scenario where is better to leave all the responsibility of the store actions and mutations to the parent component?
+// If we want to leave the store handling to the parent component, how could we implement it?
 function deleteShift() {
     shiftsStore.deleteShift(shiftFields.value.id);
     emit('closeShiftDialog');
