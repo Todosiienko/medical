@@ -58,22 +58,21 @@ function clearShift() {
   shiftsStore.clearActiveShift();
 }
 
-const filteredShifts = computed(() => {
-  const filteredShifts = [];
-
-  shiftsStore.shifts.forEach(shift => {
-    if(Object.values(shift.dates).some(date => {
-      return +date.price >= +priceRange.value[0] && +date.price <= +priceRange.value[1];
-    })){
-      const filteredDates = Object.values(shift.dates).filter(date => {
-        return +date.price >= +priceRange.value[0] && +date.price <= +priceRange.value[1];
+const filteredShifts = computed(()=>{
+  const [min, max] = priceRange.value;
+  return shiftsStore.shifts.reduce((acc, shift) => {
+    const validDates = Object.values(shift.dates).filter(({ price }) => {
+      const p = Number(price);
+      return p >= min && p <= max;
+    });
+    if (validDates.length > 0) {
+      acc.push({
+        ...shift,
+        dates: Object.fromEntries(validDates.map(d => [d.id, d])),
       });
-      const datesWithKeys = Object.fromEntries(filteredDates.map(date => [date.id, date]));
-      filteredShifts.push({...shift, dates:datesWithKeys });
     }
-  });
-  return filteredShifts;
-});
+    return acc},[])
+})
 
 </script>
 <style scoped lang="scss">

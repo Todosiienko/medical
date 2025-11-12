@@ -1,5 +1,17 @@
 import { defineStore } from 'pinia';
 
+// Simple groupBy implementation
+function groupBy(array, key) {
+  return array.reduce((result, item) => {
+    const groupKey = typeof key === 'function' ? key(item) : item[key];
+    if (!result[groupKey]) {
+      result[groupKey] = [];
+    }
+    result[groupKey].push(item);
+    return result;
+  }, {});
+}
+
 export const useShiftsStore = defineStore('shifts', {
   state: () => ({
     activeShift: {},
@@ -71,30 +83,16 @@ export const useShiftsStore = defineStore('shifts', {
       };
     },
     getBookedTime:(state)=>{
-      const uniqDates = new Set();
-      let allDateShifts = [];
-      state.shifts.forEach(shift => {
-        Object.keys(shift.dates).forEach(key => {
-          uniqDates.add(key);
-        });
-        const modifiedDates = Object.values(shift.dates).map((i)=>{
-          return {
-            id:i.id,
-            date:i.date,
-            startTime:i.startTime,
-            endTime:i.endTime,
-            type:i.type
-          }
-        })
-        allDateShifts = [...allDateShifts, ...modifiedDates];
-      });
-
-      const separateShifts = Object.fromEntries([...uniqDates].map((i)=>{
-        const key = i;
-        const filteredShifts = allDateShifts.filter((shift)=>shift.date === key);
-        return [key, filteredShifts]
-      }))
-      return separateShifts;
+      const allDateShifts = state.shifts.flatMap(shift =>
+          Object.values(shift.dates).map(({ id, date, startTime, endTime, type }) => ({
+            id,
+            date,
+            startTime,
+            endTime,
+            type,
+          }))
+      );
+      return groupBy(allDateShifts, 'date');
     }
   }
 });
