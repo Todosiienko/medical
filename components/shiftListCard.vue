@@ -38,23 +38,25 @@
     </v-card>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import dayjs from 'dayjs'
-const props = defineProps({
-  shift: Object,
-})
+import type { Shift, DateShift } from '~/types/shifts'
 
-const types = {
+const props = defineProps<{
+  shift: Shift;
+}>()
+
+const types: Record<string, string> = {
   "consultation": "Consultation",
   "ambulance": "Ambulance",
   "telephone": "Telephone",
 }
 
-const dates = computed(() => {
+const dates = computed((): DateShift[] => {
   return Object.values(props.shift.dates || {});
 })
 
-const currencies = {
+const currencies: Record<string, string> = {
     "EUR": "€",
     "USD": "$",
 }

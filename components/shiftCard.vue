@@ -25,26 +25,29 @@
         </form>
     </v-card>
 </template>
-<script setup>
+<script setup lang="ts">
 import dayjs from 'dayjs'
+import type { Shift, DateShift } from '~/types/shifts'
+
 const shiftsStore = useShiftsStore()
 const emit = defineEmits(['closeShiftDialog', 'save']);
-const props = defineProps({
-    shift: Object,
-})
+const props = defineProps<{
+    shift?: Shift;
+}>()
 
 const rules = {
-    titleValidation: value => {
+    titleValidation: (value: string): boolean | string => {
         if (value && value.length <= 100) return true;
         if(value && value.length > 100) return 'Title must be less than 100 characters';
         return 'You must enter a title';
     },
-    descriptionValidation: value => {
+    descriptionValidation: (value: string): boolean | string => {
         if (!value || (value?.length <= 500)) return true;
         if(value?.length > 500) return 'Description must be less than 500 characters';
+        return true;
     },
 }
-const dates = ref([]);
+const dates = ref<string[]>([]);
 const dateSelectionNotification = shallowRef('');
 
 
@@ -63,7 +66,7 @@ watch(dates, (newVal, oldVal) => {
         return;
     }
     
-    newVal.forEach(date => {
+    newVal.forEach((date: string | Date) => {
         const formatedDate = dayjs(date).format('YYYY-MM-DD');
         if(!shiftFields.value.dates[formatedDate]) {
             shiftFields.value.dates[formatedDate] = {
@@ -71,7 +74,7 @@ watch(dates, (newVal, oldVal) => {
                 date: formatedDate,
                 startTime: "",
                 endTime: "",
-                price: "0",
+                price: 0,
                 type: "telephone",
                 currency: "EUR",
             };
@@ -79,15 +82,18 @@ watch(dates, (newVal, oldVal) => {
     });
 })
 
-const shiftFields = ref({
+const shiftFields = ref<Shift>({
+    id: "",
     title: "",
     description: "",
     dates: {},
+    type: "new",
 })
 
 
-function deleteDateShift(date) {
-    delete shiftFields.value.dates[dayjs(date).format('YYYY-MM-DD')];
+function deleteDateShift(date: string | Date) {
+    const formattedDate = dayjs(date).format('YYYY-MM-DD');
+    delete shiftFields.value.dates[formattedDate];
     dates.value = dates.value.filter(d => d !== date);
     dateSelectionNotification.value = '';
 }
@@ -116,21 +122,23 @@ const disableSave = computed(() => {
 })
 function clearFields() {
     shiftFields.value = {
+        id: "",
         description: "",
         dates: {},
         title: "",
+        type: "new",
     }
 }
 
 
 
 onMounted(() => {
-    shiftFields.value = JSON.parse(JSON.stringify(shiftsStore.activeShift));
+    shiftFields.value = JSON.parse(JSON.stringify(shiftsStore.activeShift)) as Shift;
     if(!shiftFields.value.dates) {
         shiftFields.value.dates = {};
     }
     if(shiftFields.value.dates && Object.keys(shiftFields.value.dates).length > 0) {
-        dates.value = Object.values(shiftFields.value.dates).map(date => date.date);
+        dates.value = Object.values(shiftFields.value.dates).map((date: DateShift) => date.date);
     }
 })
 </script>

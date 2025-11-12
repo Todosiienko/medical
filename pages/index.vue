@@ -33,12 +33,15 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
+import type { Shift } from '~/types/shifts'
+
 const shiftsStore = useShiftsStore()
 
 const priceRange = ref([shiftsStore.priceOptions.min, shiftsStore.priceOptions.max]);
 
-const newShiftData = {
+const newShiftData: Shift = {
+  id: "",
   title: "",
   description: "",
   dates: {},
@@ -54,13 +57,13 @@ function setNewShift() {
   shiftsStore.setActiveShift(newShiftData);
 }
 
-function clearShift() {
+function clearShift():void {
   shiftsStore.clearActiveShift();
 }
 
 const filteredShifts = computed(()=>{
   const [min, max] = priceRange.value;
-  return shiftsStore.shifts.reduce((acc, shift) => {
+  return (shiftsStore.shifts as Shift[]).reduce((acc: Shift[], shift:Shift) => {
     const validDates = Object.values(shift.dates).filter(({ price }) => {
       const p = Number(price);
       return p >= min && p <= max;
