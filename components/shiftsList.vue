@@ -15,12 +15,12 @@ const emits = defineEmits([
   'editShift',
   'deleteShift'
 ])
-function editShift(item: Shift){
+function editShift(item: Shift) : void{
   shiftsStore.setActiveShift({...item, type:'edit'})
   shiftsStore.shiftDialogIsOpen = true;
 }
 
-function deleteShift(item: Shift){
+function deleteShift(item: Shift):void{
   emits('deleteShift', item)
 }
 

@@ -51,7 +51,7 @@ const dates = ref<string[]>([]);
 const dateSelectionNotification = shallowRef('');
 
 
-watch(dates, (newVal, oldVal) => {
+watch(dates, (newVal: string[]) => {
     dateSelectionNotification.value = '';
     
     if (newVal.length === 0) {
@@ -91,14 +91,14 @@ const shiftFields = ref<Shift>({
 })
 
 
-function deleteDateShift(date: string | Date) {
+function deleteDateShift(date: string | Date) :void {
     const formattedDate = dayjs(date).format('YYYY-MM-DD');
     delete shiftFields.value.dates[formattedDate];
     dates.value = dates.value.filter(d => d !== date);
     dateSelectionNotification.value = '';
 }
 
-function saveShift() {
+function saveShift():void {
     if(shiftFields.value.type === 'new') {
         delete shiftFields.value.type;
         shiftsStore.addShift({...shiftFields.value, id: new Date().getTime()});
@@ -109,18 +109,18 @@ function saveShift() {
     clearFields();
 }
 
-function deleteShift() {
+function deleteShift():void {
     shiftsStore.deleteShift(shiftFields.value.id);
     emit('closeShiftDialog');
     clearFields();
 }
-const disableSave = computed(() => {
+const disableSave = computed(():boolean => {
     const titleIsValid = typeof(rules.titleValidation(shiftFields.value.title)) === 'boolean' && rules.titleValidation(shiftFields.value.title);
     const descriptionIsValid = typeof(rules.descriptionValidation(shiftFields.value.description)) === 'boolean' && rules.descriptionValidation(shiftFields.value.description);
     const datesAreValid = dates.value.length >= 1 && dates.value.length <= 10;
     return !titleIsValid || !descriptionIsValid || !datesAreValid;
 })
-function clearFields() {
+function clearFields():void {
     shiftFields.value = {
         id: "",
         description: "",

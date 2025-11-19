@@ -16,3 +16,10 @@ export interface Shift {
   type?: string;
 }
 
+export interface BookedTime {
+  id:string;
+  type:string;
+  date:string;
+  startTime:string;
+  endTime:string;
+}

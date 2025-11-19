@@ -52,7 +52,7 @@ watch(() => shiftsStore.priceOptions, (newVal, oldVal) => {
   priceRange.value = [newVal.min, newVal.max];
 });
 
-function setNewShift() {
+function setNewShift():void {
   shiftsStore.shiftDialogIsOpen = true;
   shiftsStore.setActiveShift(newShiftData);
 }
@@ -61,7 +61,7 @@ function clearShift():void {
   shiftsStore.clearActiveShift();
 }
 
-const filteredShifts = computed(()=>{
+const filteredShifts = computed(() : Shift[]=>{
   const [min, max] = priceRange.value;
   return (shiftsStore.shifts as Shift[]).reduce((acc: Shift[], shift:Shift) => {
     const validDates = Object.values(shift.dates).filter(({ price }) => {

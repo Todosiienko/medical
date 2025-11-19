@@ -62,7 +62,7 @@ const currencies: Record<string, string> = {
 }
 
 const emits = defineEmits(['editShift']);
-function editShift(){
+function editShift():void{
   emits('editShift', props.shift);
 }
 </script>

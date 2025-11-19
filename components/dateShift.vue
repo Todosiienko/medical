@@ -25,7 +25,7 @@
         </v-card>
     </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import dayjs from 'dayjs'
 import {useShiftsStore} from "~/stores/shifts.js";
 const props = defineProps({
@@ -34,24 +34,23 @@ const props = defineProps({
 const emits = defineEmits(['deleteDateShift'])
 const showStartTimeMenu = ref(false)
 const showEndTimeMenu = ref(false)
-const startTimeHour= ref(null);
-const endTimeHour= ref(null);
+const startTimeHour= ref<number | null>(null);
+const endTimeHour= ref<number | null>(null);
 const shiftsStore = useShiftsStore();
-const shiftTypes = [{title: "Consultation", value: "consultation"}, {title: "Ambulance", value: "ambulance"}, {title: "Telephone", value: "telephone"}]
+const shiftTypes : Record<string,string>[] = [{title: "Consultation", value: "consultation"}, {title: "Ambulance", value: "ambulance"}, {title: "Telephone", value: "telephone"}]
 
-const startTime = defineModel('startTime');
-const endTime = defineModel('endTime');
+const startTime = defineModel<string>('startTime');
+const endTime = defineModel<string>('endTime');
 const price = defineModel('price');
 const type = defineModel('type');
 
-function deleteDateShift(){
+function deleteDateShift():void{
     emits('deleteDateShift')
 }
 
+const allowedTime = computed(():Record<string, string[]>=>{
 
-const allowedTime = computed(()=>{
-
-  const minutesRange = [];
+  const minutesRange: string[] = [];
   for(let min = 0; min<=59; min++){
     let formatedMinute = min < 10 ? "0"+min : min.toString()
     minutesRange.push(formatedMinute);
@@ -97,14 +96,13 @@ const allowedTime = computed(()=>{
           unitTime[startHour] = unitTime[startHour].filter((m)=> +m < +startMinute);
           unitTime[endHour] = unitTime[endHour].filter((m)=> +m > +endMinute);
         }
-
       }
     })
   }
   return unitTime
 })
-const allowedHours = computed(()=>Object.keys(allowedTime.value).map((h)=>+h))
-const allowedStartTimeMinutes = computed(()=>{
+const allowedHours = computed(():number[]=>Object.keys(allowedTime.value).map((h)=>+h))
+const allowedStartTimeMinutes = computed(():number[]=>{
   if(startTimeHour.value === null) return [];
   else {
     let hourKey = startTimeHour.value < 10 ? "0"+ startTimeHour.value : startTimeHour.value.toString();
